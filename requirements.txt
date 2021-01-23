@@ -2,4 +2,4 @@ Flask
 datetime
 uuid
 Flask-SQLAlchemy
-PyJWT
+flask_jwt_extended
