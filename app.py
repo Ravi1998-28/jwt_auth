@@ -61,9 +61,6 @@ def protected():
         except:
             return jsonify({'message': 'token is invalid'}), 401
 
-    else:
-        return "The method is not allowed for the requested URL", 405
-
 
 if __name__ == "__main__":
     app.run(debug=True)
