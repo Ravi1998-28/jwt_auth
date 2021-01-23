@@ -1,166 +1,69 @@
-from flask import Flask, request, jsonify, make_response
-from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
-import uuid
+from flask import Flask ,jsonify , request
 from flask_jwt_extended import (
     JWTManager, jwt_required, create_access_token,
     jwt_refresh_token_required, create_refresh_token,
     get_jwt_identity
 )
+import jwt as pyJwt
 
 app = Flask(__name__)
-
-app.config['JWT_SECRET_KEY'] = 'jwt-secret'
-app.config['SECRET_KEY'] = 'thisissecrete'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://////home/ravi/PycharmProjects/protection_api/library.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-
+app.config['JWT_SECRET_KEY'] = 'super-secret'
 jwt = JWTManager(app)
-db = SQLAlchemy(app)
 
 
-class Users(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    public_id = db.Column(db.Integer)
-    name = db.Column(db.String(50))
-    password = db.Column(db.String(50))
-    admin = db.Column(db.Boolean)
+@app.route('/createtoken', methods=['GET'])
+def CreateToken():
+    if request.method == 'GET':
+        master = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InJtWCIsImlhdCI6MTU5MzYzMzczNCwiZXhwIjoyMzI4MDMzNzM0fQ.X45l_iR0nqlHTczwVmP50JO7EEGTAXBwLs_uGLIpbbw"
+        if not master:
+            return jsonify({'message': 'Token is missing'}), 403
+        try:
 
+            decoded = pyJwt.decode(master, options={"verify_signature": False})
+            user_hash = dict(decoded).get('id', None)
 
+        except:
+            return jsonify({'message': 'token is invalid'}), 403
 
-
-
-@app.route('/register', methods=['GET', 'POST'])
-def signup_user():
-    data = request.get_json()
-
-    hashed_password = generate_password_hash(data['password'], method='sha256')
-
-    new_user = Users(public_id=str(uuid.uuid4()), name=data['name'], password=hashed_password, admin=False)
-    db.session.add(new_user)
-    db.session.commit()
-
-    return jsonify({'message': 'registered successfully'})
-
-
-@app.route('/login', methods=['GET', 'POST'])
-def login_user():
-    auth = request.authorization
-
-    if not auth or not auth.username or not auth.password:
-        return make_response('could not verify', 401, {'WWW.Authentication': 'Basic realm: "login required"'})
-
-    user = Users.query.filter_by(name=auth.username).first()
-
-    if check_password_hash(user.password, auth.password):
+        # Use create_access_token() and create_refresh_token() to create our
+        # access and refresh tokens
         ret = {
-            'access_token': create_access_token(identity=auth.username),
-            'refresh_token': create_refresh_token(identity=auth.username)
+            'authToken': create_access_token(identity=user_hash),
+            'refreshToken': create_refresh_token(identity=user_hash)
         }
         return jsonify(ret), 200
+    else:
+        return jsonify({'message': 'The method is not allowed for the requested URL'}), 405
 
-    return make_response('could not verify', 401, {'WWW.Authentication': 'Basic realm: "login required"'})
 
 
 @app.route('/refresh', methods=['POST'])
 @jwt_refresh_token_required
 def refresh():
-    current_user = get_jwt_identity()
-    ret = {
-        'access_token': create_access_token(identity=current_user)
-    }
-    return jsonify(ret), 200
-
-
-@app.route('/protected', methods=['GET'])
-@jwt_required
-def protected():
-    username = get_jwt_identity()
-    return jsonify(logged_in_as=username), 200
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
-from flask import Flask, request, jsonify, make_response
-from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
-import uuid
-from flask_jwt_extended import (
-    JWTManager, jwt_required, create_access_token,
-    jwt_refresh_token_required, create_refresh_token,
-    get_jwt_identity
-)
-
-app = Flask(__name__)
-
-app.config['JWT_SECRET_KEY'] = 'jwt-secret'
-app.config['SECRET_KEY'] = 'thisissecrete'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://////home/ravi/PycharmProjects/protection_api/library.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-
-jwt = JWTManager(app)
-db = SQLAlchemy(app)
-
-
-class Users(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    public_id = db.Column(db.Integer)
-    name = db.Column(db.String(50))
-    password = db.Column(db.String(50))
-    admin = db.Column(db.Boolean)
-
-
-
-
-
-@app.route('/register', methods=['GET', 'POST'])
-def signup_user():
-    data = request.get_json()
-
-    hashed_password = generate_password_hash(data['password'], method='sha256')
-
-    new_user = Users(public_id=str(uuid.uuid4()), name=data['name'], password=hashed_password, admin=False)
-    db.session.add(new_user)
-    db.session.commit()
-
-    return jsonify({'message': 'registered successfully'})
-
-
-@app.route('/login', methods=['GET', 'POST'])
-def login_user():
-    auth = request.authorization
-
-    if not auth or not auth.username or not auth.password:
-        return make_response('could not verify', 401, {'WWW.Authentication': 'Basic realm: "login required"'})
-
-    user = Users.query.filter_by(name=auth.username).first()
-
-    if check_password_hash(user.password, auth.password):
+    try:
+        current_user = get_jwt_identity()
         ret = {
-            'access_token': create_access_token(identity=auth.username),
-            'refresh_token': create_refresh_token(identity=auth.username)
+            'authToken': create_access_token(identity=current_user)
         }
         return jsonify(ret), 200
+    except:
+        return jsonify({'message': 'Refresh token is invalid'}), 401
 
-    return make_response('could not verify', 401, {'WWW.Authentication': 'Basic realm: "login required"'})
-
-
-@app.route('/refresh', methods=['POST'])
-@jwt_refresh_token_required
-def refresh():
-    current_user = get_jwt_identity()
-    ret = {
-        'access_token': create_access_token(identity=current_user)
-    }
-    return jsonify(ret), 200
 
 
 @app.route('/protected', methods=['GET'])
 @jwt_required
 def protected():
-    username = get_jwt_identity()
-    return jsonify(logged_in_as=username), 200
+    if request.method == 'GET':
+        try:
+            username = get_jwt_identity()
+            return jsonify(logged_in_as=username), 200
+        except:
+            return jsonify({'message': 'token is invalid'}), 401
+
+    else:
+        return "The method is not allowed for the requested URL", 405
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)
