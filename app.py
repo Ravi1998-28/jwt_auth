@@ -55,15 +55,18 @@ def refresh():
 
 
 
-@app.route('/protected', methods=['GET'])
+@app.route('/protected', methods=['POST'])
 @jwt_required
 def protected():
-    if request.method == 'GET':
-        try:
-            username = get_jwt_identity()
-            return jsonify(logged_in_as=username), 200
-        except:
-            return jsonify({'message': 'token is invalid'}), 401
+    authToken = request.get_json()['authToken']
+    if not authToken:
+        return jsonify({'message': 'Token is missing'}), 403
+    try:
+        decoded = pyJwt.decode(authToken, options={"verify_signature": False})
+        username = dict(decoded).get('identity', None)
+        return jsonify(logged_in_as=username), 200
+    except:
+        return jsonify({'message': 'token is invalid'}), 401
 
 if __name__ == "__main__":
     app.run(debug=True)
