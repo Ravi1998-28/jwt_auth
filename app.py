@@ -24,22 +24,18 @@ class Users(db.Model):
     created_at = db.Column(db.DateTime, default=db.func.now())
 
 
-
 @app.route('/generateToken', methods=['POST'])
-def generateToken():
+def generate_token():
     master = request.get_json()['master']
-    print(master)
     if not master:
         return jsonify({'message': 'Token is missing'}), 403
 
     try:
-
         decoded = pyJwt.decode(master, options={"verify_signature": False})
-        user_hash = dict(decoded).get('id', None)
-    except:
-        return jsonify({'message': 'token is invalid'}), 403
-
-
+        user_hash = decoded.get('id', None)
+    except Exception as ex:
+        print(ex)
+        return jsonify({'message': 'Token is invalid'}), 403
     ret = {
         'authToken': create_access_token(identity=user_hash),
         'refreshToken': create_refresh_token(identity=user_hash)
@@ -47,18 +43,18 @@ def generateToken():
     return jsonify(ret), 200
 
 
-
-@app.route('/refresh', methods=['POST'])
+@app.route('/refreshToken', methods=['POST'])
 @jwt_refresh_token_required
-def refresh():
+def refresh_token():
     try:
         current_user = get_jwt_identity()
         ret = {
             'authToken': create_access_token(identity=current_user)
         }
         return jsonify(ret), 200
-    except:
-        return jsonify({'message': 'token is invalid'}), 403
+    except Exception as ex:
+        print(ex)
+        return jsonify({'message': 'Token is invalid'}), 403
 
 
 @app.route('/protected', methods=['POST'])
@@ -68,34 +64,66 @@ def protected():
     return jsonify(logged_in_as=username), 200
 
 
-@app.route('/ApiKeySave', methods=['GET', 'POST'])
+@app.route('/apiKey', methods=['POST'])
 @jwt_required
-def ApiKey_Save():
-
+def save_api_key():
     data = request.get_json()
-    Api_Key = str(data['apiKey'])
+    api_key = data['apiKey']
     master = data['master']
-    print('Api_Key:', Api_Key)
-    print('master:', master)
-    if not Api_Key:
+
+    if not api_key:
         return jsonify({'message': 'Api Key is missing'}), 403
     elif not master:
         return jsonify({'message': 'Token is missing'}), 403
+
     try:
         decoded = pyJwt.decode(master, options={"verify_signature": False})
         username = dict(decoded).get('id', None)
 
-    except:
+    except Exception as ex:
+        print(ex)
         return jsonify({'message': 'token is invalid'}), 403
 
-
-    new_user = Users(user=username, apiKey=Api_Key)
+    new_user = Users(user=username, apiKey=api_key)
     db.session.add(new_user)
     db.session.commit()
 
     return jsonify({
                     "success": "true",
                     "message": "Apikey saved",
+                    })
+
+
+@app.route('/apiKey', methods=['DELETE'])
+@jwt_required
+def api_key_delete():
+    data = request.get_json()
+    api_key = data['apiKey']
+    master = data['master']
+    if not api_key:
+        return jsonify({'message': 'Api Key is missing'}), 403
+    elif not master:
+        return jsonify({'message': 'Token is missing'}), 403
+
+    try:
+        decoded = pyJwt.decode(master, options={"verify_signature": False})
+        username = dict(decoded).get('id', None)
+
+    except Exception as ex:
+        print(ex)
+        return jsonify({'message': 'token is invalid'}), 403
+
+    user = Users.query.filter_by(user=username, apiKey=api_key).first()
+
+    if not user:
+        return jsonify({'message': 'user does not exist'})
+
+    db.session.delete(user)
+    db.session.commit()
+
+    return jsonify({
+                    "success": "true",
+                    "message": "Apikey removed"
                     })
 
 
