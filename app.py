@@ -10,7 +10,7 @@ import jwt as pyJwt
 app = Flask(__name__)
 
 # use your path for db file
-app.config['SQLALCHEMY_DATABASE_URI']='sqlite://///home/ravi/PycharmProjects/secure_api/library.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://///home/ravi/PycharmProjects/secure_api/library.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['JWT_SECRET_KEY'] = 'super-secret'
 
@@ -49,6 +49,8 @@ def generate_token():
     try:
         decoded = pyJwt.decode(master, options={"verify_signature": False})
         user_hash = decoded.get('id', None)
+        if user_hash is None:
+            user_hash = decoded.get('identity', None)
     except Exception as ex:
         print(ex)
         return jsonify({'message': 'Token is invalid'}), 403
@@ -118,22 +120,22 @@ def protected():
 @jwt_required
 def save_api_key():
     """ Saving Api key and user_hash using Users model.
-        ---
-        POST:
-            summary: apiKey endpoint.
-            description: id, Api key, user_hash and created_date saved into Users model .
-            parameters:
-                - Bearer Token: authToken
-                  master: master Token
-                  api_key: apiKey
-                  type: String
-                  required: true
-            responses:
-                200:
-                    description: user_hash and api key saved  to be returned.
-                403:
-                    description: Token is invalid.
-        """
+    ---
+    POST:
+        summary: apiKey endpoint.
+        description: id, Api key, user and created_at saved into Users model .
+        parameters:
+            - Bearer Token: authToken
+              master: master Token
+              api_key: apiKey
+              type: String
+              required: true
+        responses:
+            200:
+                description: user_hash and api key saved  to be returned.
+            403:
+                description: Token is invalid.
+    """
     data = request.get_json()
     api_key = data['apiKey']
     master = data['master']
@@ -146,6 +148,8 @@ def save_api_key():
     try:
         decoded = pyJwt.decode(master, options={"verify_signature": False})
         user_hash = decoded.get('id', None)
+        if user_hash is None:
+            user_hash = decoded.get('identity', None)
 
     except Exception as ex:
         print(ex)
@@ -195,6 +199,8 @@ def api_key_delete():
     try:
         decoded = pyJwt.decode(master, options={"verify_signature": False})
         user_hash = decoded.get('id', None)
+        if user_hash is None:
+            user_hash = decoded.get('identity', None)
 
     except Exception as ex:
         print(ex)
