@@ -6,6 +6,7 @@ from flask_jwt_extended import (
     get_jwt_identity
 )
 import jwt as pyJwt
+from functools import wraps
 
 app = Flask(__name__)
 
@@ -23,6 +24,53 @@ class Users(db.Model):
     user = db.Column(db.String(50))
     apiKey = db.Column(db.String(50), unique=True)
     created_at = db.Column(db.DateTime, default=db.func.now())
+
+
+"""Giving access by auth Token as well by api key using this custom_access function """
+def custom_access(f):
+   @wraps(f)
+   def decorator(*args, **kwargs):
+      token = None
+      api_key = None
+
+      if 'authToken' in request.headers:
+         token = request.headers['authToken']
+
+      if 'apiKey' in request.headers:
+          api_key = request.headers['apiKey']
+
+      try:
+          # finding current user
+         if token is not None and api_key is not None:
+
+             decoded = pyJwt.decode(token, options={"verify_signature": False})
+             user_hash = decoded.get('id', None)
+             if user_hash is None:
+                 user_hash = decoded.get('identity', None)
+
+             current_user = Users.query.filter_by(user=user_hash, apiKey=api_key ).first()
+
+         elif token is not None and api_key is None:
+
+             decoded = pyJwt.decode(token, options={"verify_signature": False})
+             user_hash = decoded.get('id', None)
+             if user_hash is None:
+                 user_hash = decoded.get('identity', None)
+
+             current_user = Users.query.filter_by(user=user_hash).first()
+
+         elif api_key is not None and token is None:
+             current_user = Users.query.filter_by(apiKey=api_key).first()
+
+         else:
+             return jsonify({'message': 'Not authorised'}), 401
+
+      except Exception as ex:
+         print(ex)
+         return jsonify({'message': 'Token is invalid'})
+
+      return f(current_user, *args, **kwargs)
+   return decorator
 
 
 @app.route('/generateToken', methods=['POST'])
@@ -91,15 +139,17 @@ def refresh_token():
 
 
 @app.route('/protected', methods=['POST'])
-@jwt_required
-def protected():
-    """ Protecting this endpoint by authToken.
+@custom_access
+def protected(current_user):
+    """ Protecting this endpoint by authToken and api key.
     ---
     POST:
         summary: protected endpoint.
-        description: Get the  User_hash with the authToken.
+        description: Get the  User_hash with the authToken and api key , passing into headers.
+
         parameters:
-            - Bearer Token: authToken
+            - authToken: authToken
+              apiKey:api_key
               type: String
               required: true
         responses:
@@ -109,8 +159,7 @@ def protected():
                 description: Token is invalid.
     """
     try:
-        user_hash = get_jwt_identity()
-        return jsonify(logged_in_as=user_hash), 200
+        return jsonify(logged_in_as=current_user.user), 200
     except Exception as ex:
         print(ex)
         return jsonify({'message': 'Token is invalid'}), 403
@@ -158,16 +207,19 @@ def save_api_key():
     if user_hash is None:
         return "Please give a valid Token"
     else:
+        """
         user = Users.query.filter_by(user=user_hash, apiKey=api_key).first()
+        
         if user is not None:
             if user.user == user_hash and user.apiKey == api_key:
                 return jsonify({'message': 'user already exist'})
             elif user.apiKey == api_key:
-                return jsonify({'message': 'Api key should be unique.'})
+                return jsonify({'message': 'Api key should be unique exist'})
         else:
-            new_user = Users(user=user_hash, apiKey=api_key)
-            db.session.add(new_user)
-            db.session.commit()
+        """
+        new_user = Users(user=user_hash, apiKey=api_key)
+        db.session.add(new_user)
+        db.session.commit()
 
     return jsonify({
                     "success": "true",
