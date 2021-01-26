@@ -158,9 +158,16 @@ def save_api_key():
     if user_hash is None:
         return "Please give a valid Token"
     else:
-        new_user = Users(user=user_hash, apiKey=api_key)
-        db.session.add(new_user)
-        db.session.commit()
+        user = Users.query.filter_by(user=user_hash, apiKey=api_key).first()
+        if user is not None:
+            if user.user == user_hash and user.apiKey == api_key:
+                return jsonify({'message': 'user already exist'})
+            elif user.apiKey == api_key:
+                return jsonify({'message': 'Api key should be unique exist'})
+        else:
+            new_user = Users(user=user_hash, apiKey=api_key)
+            db.session.add(new_user)
+            db.session.commit()
 
     return jsonify({
                     "success": "true",
