@@ -41,7 +41,7 @@ def custom_access(f):
 
       try:
           # finding current user
-         if token is not None and api_key is not None:
+         if token and api_key:
 
              decoded = pyJwt.decode(token, options={"verify_signature": False})
              user_hash = decoded.get('id', None)
@@ -50,7 +50,7 @@ def custom_access(f):
 
              current_user = Users.query.filter_by(user=user_hash, apiKey=api_key ).first()
 
-         elif token is not None and api_key is None:
+         elif token and api_key is None:
 
              decoded = pyJwt.decode(token, options={"verify_signature": False})
              user_hash = decoded.get('id', None)
@@ -59,7 +59,7 @@ def custom_access(f):
 
              current_user = Users.query.filter_by(user=user_hash).first()
 
-         elif api_key is not None and token is None:
+         elif api_key and token is None:
              current_user = Users.query.filter_by(apiKey=api_key).first()
 
          else:
