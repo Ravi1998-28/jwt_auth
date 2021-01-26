@@ -163,7 +163,7 @@ def save_api_key():
             if user.user == user_hash and user.apiKey == api_key:
                 return jsonify({'message': 'user already exist'})
             elif user.apiKey == api_key:
-                return jsonify({'message': 'Api key should be unique exist'})
+                return jsonify({'message': 'Api key should be unique.'})
         else:
             new_user = Users(user=user_hash, apiKey=api_key)
             db.session.add(new_user)
