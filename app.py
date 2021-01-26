@@ -26,18 +26,18 @@ class Users(db.Model):
     created_at = db.Column(db.DateTime, default=db.func.now())
 
 
-"""Giving access by auth Token as well by api key using this custom_access function """
+"""Giving access by auth Token as well  by api key using this custom_access function """
 def custom_access(f):
    @wraps(f)
    def decorator(*args, **kwargs):
       token = None
       api_key = None
 
-      if 'authToken' in request.headers:
-         token = request.headers['authToken']
+      if 'Authorisation' in request.headers:
+         token = request.headers['Authorisation']
 
-      if 'apiKey' in request.headers:
-          api_key = request.headers['apiKey']
+      if 'x-api-key' in request.headers:
+          api_key = request.headers['x-api-key']
 
       try:
           # finding current user
