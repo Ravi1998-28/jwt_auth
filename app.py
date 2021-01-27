@@ -1,11 +1,11 @@
-from flask import Flask ,jsonify, request
+from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import (
     JWTManager, jwt_required, create_access_token,
     jwt_refresh_token_required, create_refresh_token,
     get_jwt_identity
 )
-import jwt as pyJwt
+import jwt as py_jwt
 from functools import wraps
 
 app = Flask(__name__)
@@ -27,50 +27,53 @@ class Users(db.Model):
 
 
 """Giving access by auth Token as well  by api key using this custom_access function """
+
+
 def custom_access(f):
-   @wraps(f)
-   def decorator(*args, **kwargs):
-      token = None
-      api_key = None
+    @wraps(f)
+    def decorator(*args, **kwargs):
+        token = None
+        api_key = None
 
-      if 'Authorisation' in request.headers:
-         token = request.headers['Authorisation']
+        if 'Authorisation' in request.headers:
+            token = request.headers['Authorisation']
 
-      if 'x-api-key' in request.headers:
-          api_key = request.headers['x-api-key']
+        if 'x-api-key' in request.headers:
+            api_key = request.headers['x-api-key']
 
-      try:
-          # finding current user
-         if token and api_key:
+        try:
+            # finding current user
+            if token and api_key:
 
-             decoded = pyJwt.decode(token, options={"verify_signature": False})
-             user_hash = decoded.get('id', None)
-             if user_hash is None:
-                 user_hash = decoded.get('identity', None)
+                decoded = py_jwt.decode(token, options={"verify_signature": False})
+                user_hash = decoded.get('id', None)
+                if user_hash is None:
+                    user_hash = decoded.get('identity', None)
 
-             current_user = Users.query.filter_by(user=user_hash, apiKey=api_key ).first()
+                current_user = Users.query.filter_by(user=user_hash, apiKey=api_key).first()
 
-         elif token and api_key is None:
+            elif token and api_key is None:
 
-             decoded = pyJwt.decode(token, options={"verify_signature": False})
-             user_hash = decoded.get('id', None)
-             if user_hash is None:
-                 user_hash = decoded.get('identity', None)
+                decoded = py_jwt.decode(token, options={"verify_signature": False})
+                user_hash = decoded.get('id', None)
+                if user_hash is None:
+                    user_hash = decoded.get('identity', None)
 
-             current_user = Users.query.filter_by(user=user_hash).first()
+                current_user = Users.query.filter_by(user=user_hash).first()
 
-         elif api_key and token is None:
-             current_user = Users.query.filter_by(apiKey=api_key).first()
+            elif api_key and token is None:
+                current_user = Users.query.filter_by(apiKey=api_key).first()
 
-         else:
-             return jsonify({'message': 'Not authorised'}), 401
+            else:
+                return jsonify({'message': 'Not authorised'}), 401
 
-      except Exception as ex:
-         print(ex)
-         return jsonify({'message': 'Token is invalid'})
+        except Exception as ex:
+            print(ex)
+            return jsonify({'message': 'Token is invalid'})
 
-      return f(current_user, *args, **kwargs)
-   return decorator
+        return f(current_user, *args, **kwargs)
+
+    return decorator
 
 
 @app.route('/generateToken', methods=['POST'])
@@ -95,7 +98,7 @@ def generate_token():
         return jsonify({'message': 'Token is missing'}), 403
 
     try:
-        decoded = pyJwt.decode(master, options={"verify_signature": False})
+        decoded = py_jwt.decode(master, options={"verify_signature": False})
         user_hash = decoded.get('id', None)
         if user_hash is None:
             user_hash = decoded.get('identity', None)
@@ -195,7 +198,7 @@ def save_api_key():
         return jsonify({'message': 'Token is missing'}), 403
 
     try:
-        decoded = pyJwt.decode(master, options={"verify_signature": False})
+        decoded = py_jwt.decode(master, options={"verify_signature": False})
         user_hash = decoded.get('id', None)
         if user_hash is None:
             user_hash = decoded.get('identity', None)
@@ -222,9 +225,9 @@ def save_api_key():
         db.session.commit()
 
     return jsonify({
-                    "success": "true",
-                    "message": "Apikey saved",
-                    })
+        "success": "true",
+        "message": "Apikey saved",
+    })
 
 
 @app.route('/apiKey', methods=['DELETE'])
@@ -256,7 +259,7 @@ def api_key_delete():
         return jsonify({'message': 'Token is missing'}), 403
 
     try:
-        decoded = pyJwt.decode(master, options={"verify_signature": False})
+        decoded = py_jwt.decode(master, options={"verify_signature": False})
         user_hash = decoded.get('id', None)
         if user_hash is None:
             user_hash = decoded.get('identity', None)
@@ -274,9 +277,9 @@ def api_key_delete():
     db.session.commit()
 
     return jsonify({
-                    "success": "true",
-                    "message": "Apikey removed"
-                    })
+        "success": "true",
+        "message": "Apikey removed"
+    })
 
 
 if __name__ == "__main__":
