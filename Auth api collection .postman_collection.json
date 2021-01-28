@@ -1,0 +1,212 @@
+{
+	"info": {
+		"_postman_id": "d47c47e5-3e5f-43db-b91d-08e625fcc36e",
+		"name": "Auth api collection ",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "generateToken",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\"master\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InJtWCIsImlhdCI6MTU5MzYzMzczNCwiZXhwIjoyMzI4MDMzNzM0fQ.X45l_iR0nqlHTczwVmP50JO7EEGTAXBwLs_uGLIpbbw\",\n\"deviceType\": \"desktop\"\n}"
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/generateToken",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"generateToken"
+					]
+				},
+				"description": "To generate authToken and refreshToken"
+			},
+			"response": []
+		},
+		{
+			"name": "refreshToken",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MTE4MTcyNzYsIm5iZiI6MTYxMTgxNzI3NiwianRpIjoiY2E5NjljNWYtN2I3ZC00ZWFkLWFjOTktNmVkMzVmODA3OTRjIiwiZXhwIjoxNjE0NDA5Mjc2LCJpZGVudGl0eSI6InJtWCIsInR5cGUiOiJyZWZyZXNoIn0.aEqGhYuXqibnwE6EDJB75WZ6Kw0HNCMQv4Vu-oWRN0Q",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/refreshToken",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"refreshToken"
+					]
+				},
+				"description": "To generate refershed token"
+			},
+			"response": []
+		},
+		{
+			"name": "apiKey",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MTE4MTc0NjUsIm5iZiI6MTYxMTgxNzQ2NSwianRpIjoiMDQ0NWI3ZGMtODVhYi00OTdjLWE1MGMtZDgxMjEzYjlhYTNhIiwiZXhwIjoxNjExODE4MzY1LCJpZGVudGl0eSI6InJtWCIsImZyZXNoIjpmYWxzZSwidHlwZSI6ImFjY2VzcyJ9.kluwhGh6BYVFJKfIkbqQEkrlK1SdNMr46hYB7bzdgwU",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\"apiKey\": \"110t4oh34inkjn4x73c\",\n\"master\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MTE4MTc0NjUsIm5iZiI6MTYxMTgxNzQ2NSwianRpIjoiMDQ0NWI3ZGMtODVhYi00OTdjLWE1MGMtZDgxMjEzYjlhYTNhIiwiZXhwIjoxNjExODE4MzY1LCJpZGVudGl0eSI6InJtWCIsImZyZXNoIjpmYWxzZSwidHlwZSI6ImFjY2VzcyJ9.kluwhGh6BYVFJKfIkbqQEkrlK1SdNMr46hYB7bzdgwU\"\n}"
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/apiKey",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"apiKey"
+					]
+				},
+				"description": "for save the api key"
+			},
+			"response": []
+		},
+		{
+			"name": "protected",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorisation",
+						"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MTE4MTc0NjUsIm5iZiI6MTYxMTgxNzQ2NSwianRpIjoiMDQ0NWI3ZGMtODVhYi00OTdjLWE1MGMtZDgxMjEzYjlhYTNhIiwiZXhwIjoxNjExODE4MzY1LCJpZGVudGl0eSI6InJtWCIsImZyZXNoIjpmYWxzZSwidHlwZSI6ImFjY2VzcyJ9.kluwhGh6BYVFJKfIkbqQEkrlK1SdNMr46hYB7bzdgwU",
+						"type": "text"
+					},
+					{
+						"key": "x-api-key",
+						"value": "110t4oh34inkjn4x73c",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/protected",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"protected"
+					]
+				},
+				"description": "Protected endpoint by api key and authorisation token"
+			},
+			"response": []
+		},
+		{
+			"name": "apiKey",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MTE4MTc0NjUsIm5iZiI6MTYxMTgxNzQ2NSwianRpIjoiMDQ0NWI3ZGMtODVhYi00OTdjLWE1MGMtZDgxMjEzYjlhYTNhIiwiZXhwIjoxNjExODE4MzY1LCJpZGVudGl0eSI6InJtWCIsImZyZXNoIjpmYWxzZSwidHlwZSI6ImFjY2VzcyJ9.kluwhGh6BYVFJKfIkbqQEkrlK1SdNMr46hYB7bzdgwU",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\"apiKey\": \"110t4oh34inkjn4x73c\",\n\"master\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MTE4MTc0NjUsIm5iZiI6MTYxMTgxNzQ2NSwianRpIjoiMDQ0NWI3ZGMtODVhYi00OTdjLWE1MGMtZDgxMjEzYjlhYTNhIiwiZXhwIjoxNjExODE4MzY1LCJpZGVudGl0eSI6InJtWCIsImZyZXNoIjpmYWxzZSwidHlwZSI6ImFjY2VzcyJ9.kluwhGh6BYVFJKfIkbqQEkrlK1SdNMr46hYB7bzdgwU\"\n}"
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/apiKey",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"apiKey"
+					]
+				},
+				"description": "for deleting the api key "
+			},
+			"response": []
+		}
+	]
+}
