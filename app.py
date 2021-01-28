@@ -10,8 +10,7 @@ from functools import wraps
 
 app = Flask(__name__)
 
-# use your path for db file
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://///home/ravi/PycharmProjects/secure_api/library.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://///tmp/auth.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['JWT_SECRET_KEY'] = 'super-secret'
 
