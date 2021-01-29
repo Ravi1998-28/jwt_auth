@@ -6,6 +6,7 @@ from flask_jwt_extended import (
     get_jwt_identity
 )
 import jwt as py_jwt
+import datetime
 from functools import wraps
 
 app = Flask(__name__)
@@ -21,7 +22,7 @@ db = SQLAlchemy(app)
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user = db.Column(db.String(50))
-    apiKey = db.Column(db.String(50), unique=True)
+    apiKey = db.Column(db.String(50))
     created_at = db.Column(db.DateTime, default=db.func.now())
 
 
@@ -190,6 +191,8 @@ def save_api_key():
     api_key = data['apiKey']
     master = data['master']
 
+    now = datetime.datetime.now()
+
     if not api_key:
         return jsonify({'message': 'Api Key is missing'}), 403
     elif not master:
@@ -208,7 +211,7 @@ def save_api_key():
     if user_hash is None:
         return "Please give a valid Token"
     else:
-        new_user = Users(user=user_hash, apiKey=api_key)
+        new_user = Users(user=user_hash, apiKey=api_key, created_at=now)
         db.session.add(new_user)
         db.session.commit()
 
