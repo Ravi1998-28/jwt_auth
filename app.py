@@ -10,7 +10,7 @@ from functools import wraps
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://///tmp/auth.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://GaurTests:Dr4tbDwbfBMpAgk!@94.101.227.79/GaurTests'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['JWT_SECRET_KEY'] = 'super-secret'
 
@@ -148,7 +148,6 @@ def protected(current_user):
     POST:
         summary: protected endpoint.
         description: Get the  User_hash with the authToken and api key , passing into headers.
-
         parameters:
             - authToken: authToken
               apiKey:api_key
@@ -209,16 +208,6 @@ def save_api_key():
     if user_hash is None:
         return "Please give a valid Token"
     else:
-        """
-        user = Users.query.filter_by(user=user_hash, apiKey=api_key).first()
-        
-        if user is not None:
-            if user.user == user_hash and user.apiKey == api_key:
-                return jsonify({'message': 'user already exist'})
-            elif user.apiKey == api_key:
-                return jsonify({'message': 'Api key should be unique exist'})
-        else:
-        """
         new_user = Users(user=user_hash, apiKey=api_key)
         db.session.add(new_user)
         db.session.commit()
@@ -227,8 +216,6 @@ def save_api_key():
         "success": "true",
         "message": "Apikey saved",
     })
-
-
 @app.route('/apiKey', methods=['DELETE'])
 @jwt_required
 def api_key_delete():
