@@ -49,7 +49,7 @@ class ProtectedTest(unittest.TestCase):
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"{auth_token}",
-            "x-api-key": "110t4oh34inkjn4x73c"
+            "x-api-key": "bla-bls"
         }
 
         response = self.app.post('/protected', headers=headers)
@@ -57,11 +57,9 @@ class ProtectedTest(unittest.TestCase):
         self.assertEqual(403, response.status_code)
         self.assertEqual('user does not exist', response.json['message'])
 
-    def test_protected__when__token_and_api_key_missing__then_Authorisation_token_missing(self):
+    def test_protected__when__token_and_api_key_missing__then_Authorisation_header_missing(self):
         headers = {
             "Content-Type": "application/json",
-            "Authorization": "blabla",
-            "x-api-key": ""
         }
 
         response = self.app.post('/protected', headers=headers)
