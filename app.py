@@ -45,7 +45,7 @@ def custom_access(f):
             # finding current user
             if token and api_key:
 
-                decoded = py_jwt.decode(token, options={"verify_signature": False})
+                decoded = py_jwt.decode(token, options={"verify_signature": False}, algorithms="HS256")
                 user_hash = decoded.get('id', None)
                 if user_hash is None:
                     user_hash = decoded.get('identity', None)
@@ -54,7 +54,7 @@ def custom_access(f):
 
             elif token and api_key is None:
 
-                decoded = py_jwt.decode(token, options={"verify_signature": False})
+                decoded = py_jwt.decode(token, options={"verify_signature": False}, algorithms="HS256")
                 user_hash = decoded.get('id', None)
                 if user_hash is None:
                     user_hash = decoded.get('identity', None)
@@ -65,7 +65,7 @@ def custom_access(f):
                 current_user = Users.query.filter_by(apiKey=api_key).first()
 
             else:
-                return jsonify({'message': 'Not authorised'}), 401
+                return jsonify({'message': 'Authorisation header is missing'}), 401
 
         except Exception as ex:
             print(ex)
@@ -98,7 +98,7 @@ def generate_token():
         return jsonify({'message': 'Token is missing'}), 403
 
     try:
-        decoded = py_jwt.decode(master, options={"verify_signature": False})
+        decoded = py_jwt.decode(master, options={"verify_signature": False}, algorithms="HS256")
         user_hash = decoded.get('id', None)
         if user_hash is None:
             user_hash = decoded.get('identity', None)
@@ -161,10 +161,13 @@ def protected(current_user):
                 description: Token is invalid.
     """
     try:
-        return jsonify(logged_in_as=current_user.user), 200
+        if current_user:
+            return jsonify(logged_in_as=current_user.user), 200
+        else:
+            return "User not exist"
     except Exception as ex:
         print(ex)
-        return jsonify({'message': 'Token is invalid'}), 403
+        return jsonify({'message': 'user does not exist'}), 403
 
 
 @app.route('/apiKey', methods=['POST'])
@@ -190,7 +193,6 @@ def save_api_key():
     data = request.get_json()
     api_key = data['apiKey']
     master = data['master']
-
     now = datetime.datetime.now()
 
     if not api_key:
@@ -219,6 +221,8 @@ def save_api_key():
         "success": "true",
         "message": "Apikey saved",
     })
+
+
 @app.route('/apiKey', methods=['DELETE'])
 @jwt_required
 def api_key_delete():
