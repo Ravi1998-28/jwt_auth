@@ -164,7 +164,7 @@ def protected(current_user):
         if current_user:
             return jsonify(logged_in_as=current_user.user), 200
         else:
-            return "User not exist"
+            return jsonify({'message': 'user does not exist'}), 403
     except Exception as ex:
         print(ex)
         return jsonify({'message': 'user does not exist'}), 403
