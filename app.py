@@ -10,10 +10,6 @@ import jwt as pyJwt
 app = Flask(__name__)
 
 # use your path for db file
-# use your path for db file
-# use your path for db file
-# use your path for db file
-# use your path for db file
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://///home/ravi/PycharmProjects/secure_api/library.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['JWT_SECRET_KEY'] = 'super-secret'
@@ -21,7 +17,6 @@ app.config['JWT_SECRET_KEY'] = 'super-secret'
 jwt = JWTManager(app)
 db = SQLAlchemy(app)
 
-#i want to  commit something here
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user = db.Column(db.String(50))
